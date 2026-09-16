@@ -1,154 +1,123 @@
-<footer id="footer" class="pt-5" style="background-color: #1e1f29; color: #fff;">
+<footer id="footer" class="pt-5" style="background: linear-gradient(135deg, #15161d 0%, #1e1f29 100%); color: #fff; border-top: 3px solid #D10024;">
 <?php 
  $cuser = new auth();
  $result = $cuser->select_footer_data();
 ?>
 <!-- Top Footer -->
-<div class="section" style="padding-bottom:0;">
-	<div class="container">
-		<div class="row">
+<div class="section" style="padding-bottom: 30px;">
+    <div class="container">
+        <div class="row">
 
-			<div class="col-md-4 col-sm-6 mb-4">
-				<div class="footer">
-					<h3 class="footer-title mb-3" style="color: #D10024; letter-spacing:1px; font-weight:800;">About Us</h3>
-					<p style="color: #b0b3c4; font-size:15px; line-height:1.8;"><?php echo $result['description']?></p>
-					<ul class="footer-links about-list mb-3" style="padding-left:0; list-style:none;">
-						<li class="mb-1">
-							<a href="#"><i class="fa fa-map-marker"></i><?php echo $result['street']?></a>
-						</li>
-						<li class="mb-1">
-							<a href="#"><i class="fa fa-location-arrow"></i><?php echo $result['city']?></a>
-						</li>
-						<li class="mb-1">
-							<a href="#"><i class="fa fa-phone"></i><?php echo $result['phone']?></a>
-						</li>
-						<li class="mb-1">
-							<a href="mailto:<?php echo $result['email']?>"><i class="fa fa-envelope-o"></i><?php echo $result['email']?></a>
-						</li>
-					</ul>
-					<!-- Social Media Icons Refined -->
-					<ul class="footer-links footer-social-icons list-inline mt-3 mb-0" style="padding-left:0;">
-						<li class="list-inline-item">
-							<a href="https://facebook.com/" target="_blank" title="Facebook">
-								<i class="fa fa-facebook"></i>
-							</a>
-						</li>
-						<li class="list-inline-item">
-							<a href="https://twitter.com/" target="_blank" title="Twitter">
-								<i class="fa fa-twitter"></i>
-							</a>
-						</li>
-						<li class="list-inline-item">
-							<a href="https://instagram.com/" target="_blank" title="Instagram">
-								<i class="fa fa-instagram"></i>
-							</a>
-						</li>
-						<li class="list-inline-item">
-							<a href="https://linkedin.com/" target="_blank" title="LinkedIn">
-								<i class="fa fa-linkedin"></i>
-							</a>
-						</li>
-						<li class="list-inline-item">
-							<a href="https://youtube.com/" target="_blank" title="YouTube">
-								<i class="fa fa-youtube"></i>
-							</a>
-						</li>
-					</ul>
-				</div>
-			</div>
+            <!-- Thông tin giới thiệu & Liên hệ -->
+            <div class="col-md-4 col-sm-6 mb-4">
+                <div class="footer">
+                    <h3 class="footer-title mb-3" style="color: #D10024; letter-spacing: 1px; font-weight: 800; position: relative;">Về Chúng Tôi</h3>
+                    <p style="color: #b0b3c4; font-size: 14px; line-height: 1.7;"><?php echo htmlspecialchars($result['description']); ?></p>
+                    <ul class="footer-links about-list mb-3" style="padding-left: 0; list-style: none;">
+                        <li class="mb-2">
+                            <a href="#" style="color: #b0b3c4; text-decoration: none;"><i class="fa fa-map-marker" style="color: #D10024; width: 20px;"></i> <?php echo htmlspecialchars($result['street']); ?></a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" style="color: #b0b3c4; text-decoration: none;"><i class="fa fa-location-arrow" style="color: #D10024; width: 20px;"></i> <?php echo htmlspecialchars($result['city']); ?></a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" style="color: #b0b3c4; text-decoration: none;"><i class="fa fa-phone" style="color: #D10024; width: 20px;"></i> <?php echo htmlspecialchars($result['phone']); ?></a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="mailto:<?php echo htmlspecialchars($result['email']); ?>" style="color: #b0b3c4; text-decoration: none;"><i class="fa fa-envelope-o" style="color: #D10024; width: 20px;"></i> <?php echo htmlspecialchars($result['email']); ?></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
-			<!-- Categories -->
-			<div class="col-md-3 col-sm-6 mb-4">
-				<div class="footer">
-					<h3 class="footer-title mb-3" style="color: #D10024; letter-spacing:1px;">Categories</h3>
-					<ul class="footer-links">
-						<?php
-							require_once(__DIR__ . '/../admin/include/auth.php');
-							$cuser = new auth();
-							$categories = $cuser->select_cat();
-							if (!empty($categories) && is_array($categories)) {
-								$max = min(count($categories), 5);
-								for ($i = 0; $i < $max; $i++):
-									$category = $categories[$i];
-						?>
-									<li>
-										<a href="store.php?cat_id=<?php echo htmlspecialchars($category['id']); ?>"
-											style="color:#b0b3c4; text-decoration:none; transition:color 0.3s ease;"
-											onmouseover="this.style.color='#D10024'"
-											onmouseout="this.style.color='#b0b3c4'">
-											<i class="fa fa-angle-right" style="color:#D10024; margin-right:8px;"></i>
-											<?php echo htmlspecialchars($category['cat_name']); ?>
-										</a>
-									</li>
-						<?php
-								endfor;
-							} else {
-								echo '<li><span style="color:#b0b3c4;">No categories available.</span></li>';
-							}
-						?>
-					</ul>
-				</div>
-			</div>
+            <!-- Danh mục sản phẩm -->
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="footer">
+                    <h3 class="footer-title mb-3" style="color: #D10024; letter-spacing: 1px; font-weight: 700;">Danh Mục</h3>
+                    <ul class="footer-links" style="list-style: none; padding-left: 0;">
+                        <?php
+                            require_once(__DIR__ . '/../admin/include/auth.php');
+                            $cuser = new auth();
+                            $categories = $cuser->select_cat();
+                            if (!empty($categories) && is_array($categories)) {
+                                $max = min(count($categories), 5);
+                                for ($i = 0; $i < $max; $i++):
+                                    $category = $categories[$i];
+                        ?>
+                                    <li class="mb-2">
+                                        <a href="store.php?cat_id=<?php echo htmlspecialchars($category['id']); ?>"
+                                           style="color:#b0b3c4; text-decoration:none; transition: all 0.3s ease;"
+                                           onmouseover="this.style.color='#D10024'; this.style.paddingLeft='5px'"
+                                           onmouseout="this.style.color='#b0b3c4'; this.style.paddingLeft='0px'">
+                                            <i class="fa fa-angle-right" style="color:#D10024; margin-right:8px;"></i>
+                                            <?php echo htmlspecialchars($category['cat_name']); ?>
+                                        </a>
+                                    </li>
+                        <?php
+                                endfor;
+                            } else {
+                                echo '<li><span style="color:#b0b3c4;">Chưa có danh mục nào.</span></li>';
+                            }
+                        ?>
+                    </ul>
+                </div>
+            </div>
 
-			<!-- Newsletter Subscription -->
-			<div class="col-md-5 col-sm-12 mb-4">
-				<div class="footer">
-					
-					<!-- Map nicely boxed for visual alignment -->
-					<div id="map" style="width:100%;height:250px;border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(30,31,41,0.08);margin-top:18px;"></div>
-				</div>
-			</div>
-		</div>
-	</div>
+            <!-- Bản đồ địa chỉ -->
+            <div class="col-md-5 col-sm-12 mb-4">
+                <div class="footer">
+                    <h3 class="footer-title mb-3" style="color: #D10024; letter-spacing: 1px; font-weight: 700;">Vị Trí Cửa Hàng</h3>
+                    <div id="map" style="width:100%; height:220px; border-radius:12px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>
 <!-- /Top Footer -->
 
-<!-- Bottom Footer Redesigned -->
-<div id="bottom-footer" class="section py-3" style="background:#D10024;">
-	<div class="container">
-		<div class="row">
-			<div class="col-md-12 text-center" style="color:#fff;font-weight:500;letter-spacing:1px;font-size:16px;">
-				<span class="copyright">
-					&copy; <?php echo date('Y'); ?> 
-					<a target="_blank" href="https://www.worldwebtree.com" style="color:#fff;text-decoration:underline;">WorldWebTree</a>
-					<span class="mx-2">|</span>
-					Made with <i class="fa fa-heart" style="color:#fff;"></i> for you 
-					<span class="mx-2">|</span>
-					Build and design by <b>Umar FarooQ</b>
-				</span>
-			</div>
-		</div>
-	</div>
+<!-- Bottom Footer -->
+<div id="bottom-footer" class="section py-3" style="background: #111; border-top: 1px solid rgba(255,255,255,0.05);">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-12 text-center" style="color:#8d8d8d; font-size:14px;">
+                <span class="copyright">
+                    &copy; <?php echo date('Y'); ?> <b>Bản quyền thuộc về Cửa Hàng Trực Tuyến</b> 
+                    <span class="mx-2">|</span> 
+                    Thiết kế và Phát triển bởi <b style="color: #fff;">Nhóm Phát Triển Web</b>
+                </span>
+            </div>
+        </div>
+    </div>
 </div>
 <!-- /Bottom Footer -->
 
 </footer>
+
 <script type="text/javascript">
 function myMap() {
-	var positionMap = {lat: 34.0006, lng: 71.5067};
-	var map = new google.maps.Map(document.getElementById('map'), {
-		zoom: 10,
-		center: positionMap,
-		disableDefaultUI: true,
-		styles: [
-			{
-				"featureType": "all",
-				"elementType": "labels.text.fill",
-				"stylers": [{"color": "#D10024"}]
-			},
-			{ "featureType": "water", "elementType": "geometry", "stylers": [{"color": "#e4e7ed"}] }
-		]
-	});
-	var marker = new google.maps.Marker({
-		position: positionMap,
-		map: map,
-		animation: google.maps.Animation.BOUNCE,
-		icon: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
-	});
-	var infowindow = new google.maps.InfoWindow({
-		content: "<strong style='color:#D10024;'>WorldWebTree Company</strong><br/><span style='color:#333;'>Welcome!</span>"
-	});
-	infowindow.open(map,marker);
+    var positionMap = {lat: 21.028511, lng: 105.804817}; // Tọa độ Hà Nội
+    var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 12,
+        center: positionMap,
+        disableDefaultUI: true,
+        styles: [
+            { "elementType": "geometry", "stylers": [{"color": "#242f3e"}] },
+            { "elementType": "labels.text.stroke", "stylers": [{"color": "#242f3e"}] },
+            { "elementType": "labels.text.fill", "stylers": [{"color": "#746855"}] },
+            { "featureType": "water", "elementType": "geometry", "stylers": [{"color": "#17263c"}] }
+        ]
+    });
+    var marker = new google.maps.Marker({
+        position: positionMap,
+        map: map,
+        animation: google.maps.Animation.DROP,
+        icon: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+    });
+    var infowindow = new google.maps.InfoWindow({
+        content: "<strong style='color:#D10024;'>Cửa hàng của chúng tôi</strong><br/><span style='color:#333;'>Chào mừng bạn đến tham quan!</span>"
+    });
+    infowindow.open(map, marker);
 }
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCTbYZF_kDxKNopcvej6oh-eVs1z9Xq2J0&callback=myMap"></script>
