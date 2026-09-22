@@ -219,9 +219,10 @@
               }
   
               if (empty($errors) == true) {
-                  $img = "../../uploads/" . uniqid("img_") . "." . $img_ext;
-                  move_uploaded_file($img_tmp, $img);
-                  $img_2 .= $img . ',';
+                  $new_img_name = uniqid("img_") . "." . $img_ext;
+                  $img_path = "../../uploads/" . $new_img_name;
+                  move_uploaded_file($img_tmp, $img_path);
+                  $img_2 .= $new_img_name . ',';
               }
           }
           $img_2 = substr($img_2, 0, -1);
@@ -303,9 +304,10 @@
               }
   
               if (empty($errors) == true) {
-                  $img = "../../uploads/" . uniqid("img_") . "." . $img_ext;
-                  move_uploaded_file($img_tmp, $img);
-                  $img_2 .= $img . ',';
+                  $new_img_name = uniqid("img_") . "." . $img_ext;
+                  $img_path = "../../uploads/" . $new_img_name;
+                  move_uploaded_file($img_tmp, $img_path);
+                  $img_2 .= $new_img_name . ',';
               }
           }
                 $img_2 = substr($img_2, 0, -1);
@@ -428,7 +430,31 @@
                  $product_id = $cuser->test_input($_POST['product_id']);
                  $qty = $cuser->test_input($_POST['qty']);
                  $result = $cuser->add_to_cart_insertion($user_id,$product_id,$qty);
+              }
 
+              if(isset($_POST['Mode']) && $_POST['Mode'] == "delete_cart")
+              {
+                 if (!isset($_SESSION['uid'])) {
+                   echo 'Error';
+                   exit;
+                 }
+                 $user_id = $_SESSION['uid'];
+                 $product_id = $cuser->test_input($_POST['product_id']);
+                 $result = $cuser->delete_from_cart($user_id, $product_id);
+                 echo $result ? "Item removed" : "Error";
+              }
+
+              if(isset($_POST['Mode']) && $_POST['Mode'] == "update_cart")
+              {
+                 if (!isset($_SESSION['uid'])) {
+                   echo 'Error';
+                   exit;
+                 }
+                 $user_id = $_SESSION['uid'];
+                 $product_id = $cuser->test_input($_POST['product_id']);
+                 $qty = $cuser->test_input($_POST['qty']);
+                 $result = $cuser->update_cart_qty($user_id, $product_id, $qty);
+                 echo $result ? "Quantity updated" : "Error";
               }
 
               

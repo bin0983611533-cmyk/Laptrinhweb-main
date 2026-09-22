@@ -1,0 +1,1 @@
+<?php require 'admin/include/auth.php'; $a = new auth(); $a->insert_sub_category(57, 'Laptop Brands'); $a->insert_sub_category(58, 'Computer Accessories'); $a->insert_sub_category(59, 'Digital Cameras'); 

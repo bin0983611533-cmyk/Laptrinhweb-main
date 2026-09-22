@@ -240,7 +240,7 @@
 
 				$.ajax({
 					method: "POST",
-					url: "../admin/include/process.php",
+					url: "admin/include/process.php",
 					data: "Mode=order_place&" + $('#order_place').serialize(),
 					success: function (data) {
 						swal("Good Job!" , data , "success");

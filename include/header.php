@@ -6,6 +6,21 @@
  $result = $cuser->select_cart_to_header($user_id);
  $count = $cuser->count_cart_to_header($user_id);
  }
+
+ function get_product_image($images_string) {
+     $images = explode(",", $images_string);
+     // Try index 1 first if it exists, otherwise 0
+     $candidates = [1, 0];
+     foreach ($candidates as $index) {
+         if (isset($images[$index]) && !empty(trim($images[$index]))) {
+             $filename = trim($images[$index]);
+             if (file_exists(__DIR__ . '/uploads/' . $filename)) {
+                 return $filename;
+             }
+         }
+     }
+     return 'default.png';
+ }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -104,9 +119,9 @@
 						<!-- SEARCH BAR -->
 						<div class="col-md-6">
 							<div class="header-search">
-								<form action="admin/include/process.php">
-									<input class="input" name="search_input" placeholder="Search here">
-									<input type="submit" class="search-btn btn" name="search"  value="Search">
+								<form action="store.php" method="GET">
+									<input class="input" name="search" placeholder="Search here" required>
+									<button type="submit" class="search-btn btn">Search</button>
 								</form>
 							</div>
 						</div>
@@ -140,28 +155,28 @@
 									<div class="cart-dropdown">
 										<div class="cart-list">
 											<?php 
-											  
 											//  print_r($result);
 											 $cart_total = 0 ;
-											
 						
 										     foreach($result as $row)
 											 {		
 												$product_price = $row['p_price'];
 												$product_qty = $row['p_qty'];
 												$total = $product_price * $product_qty;	
-												 $cart_total = $cart_total + ($row['p_price'] * $row['p_qty']);
-                                                 
+												$cart_total = $cart_total + ($row['p_price'] * $row['p_qty']);
+                                                
+												$images = $row['images'];
+												$new_images = explode(",", $images);
+												$cart_img = !empty($new_images[0]) ? htmlspecialchars($new_images[0]) : 'default.png';
 											?>
 											<div class="product-widget">
 												<div class="product-img">
-													<img src="./img/product01.png" alt="">
+													<img src="./uploads/<?php echo $cart_img; ?>" alt="">
 												</div>
 												<div class="product-body">
-													<h3 class="product-name"><a href="product.php?p_id=<?php echo $row['id']?>"><?php echo $row['p_name']?></a></h3>
-													<h4 class="product-price"><span class="qty"><?php echo $row['p_qty']?>x</span><?php echo $row['p_price']?> = <?php echo $total; ?></h4>
+													<h3 class="product-name"><a href="product.php?p_id=<?php echo $row['id']?>"><?php echo htmlspecialchars($row['p_name'])?></a></h3>
+													<h4 class="product-price"><span class="qty"><?php echo $row['p_qty']?>x</span>Rs <?php echo htmlspecialchars($row['p_price'])?></h4>
 												</div>
-												<button class="delete"><i class="fa fa-close"></i></button>
 											</div>
 											<?php
 											 }
@@ -169,10 +184,10 @@
 										</div>
 										<div class="cart-summary">
 											<small><?php echo $count['count']?> Item(s) selected</small>
-											<h5>SUBTOTAL: <?php echo $cart_total;?></h5>
+											<h5>SUBTOTAL: Rs <?php echo $cart_total;?></h5>
 										</div>
 										<div class="cart-btns">
-											<a href="#">View Cart</a>
+											<a href="cart.php">View Cart</a>
 											<a href="checkout.php">Checkout  <i class="fa fa-arrow-circle-right"></i></a>
 										</div>
 									</div>

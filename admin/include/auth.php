@@ -191,8 +191,12 @@ class auth extends database{
 
 
     public function fetchByCategory($cat_id){
-      $sql ="SELECT products.*, category.id from products inner join category on products.category_id = category.id where category.id = $cat_id";
+      $sql ="SELECT p.*, c.cat_name 
+             FROM products p 
+             INNER JOIN category c ON p.category_id = c.id 
+             WHERE c.id = :cat_id";
       $stmt = $this->conn->prepare($sql);
+      $stmt->bindParam(':cat_id', $cat_id, PDO::PARAM_INT);
       $stmt->execute();
       $result=$stmt->fetchAll(PDO::FETCH_ASSOC);
       return $result;
@@ -438,6 +442,20 @@ class auth extends database{
           $result=$stmt->fetchAll(PDO::FETCH_ASSOC);
           return $result;
 
+      }
+
+      public function related_products($cat_id, $current_product_id)
+      {
+          $sql = "SELECT id as product_id, p_name, p_price, p_discount, images 
+                  FROM products 
+                  WHERE category_id = :cat_id AND id != :current_id 
+                  LIMIT 4";
+          $stmt = $this->conn->prepare($sql);
+          $stmt->bindParam(':cat_id', $cat_id, PDO::PARAM_INT);
+          $stmt->bindParam(':current_id', $current_product_id, PDO::PARAM_INT);
+          $stmt->execute();
+          $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+          return $result;
       }
 
       public function select_products($edit_id)
@@ -714,7 +732,9 @@ class auth extends database{
                 
                       public function products_fetch()
                    {
-                        $sql = "SELECT * FROM products";
+                        $sql = "SELECT p.*, c.cat_name 
+                                FROM products p 
+                                LEFT JOIN category c ON p.category_id = c.id";
                         $stmt = $this->conn->prepare($sql);
                         $stmt->execute();
                         $result=$stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -772,10 +792,33 @@ class auth extends database{
                    }
 
 
+                   public function delete_from_cart($user_id, $product_id) {
+                       $sql = "DELETE FROM cart WHERE user_id = :user_id AND product_id = :product_id";
+                       $stmt = $this->conn->prepare($sql);
+                       $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+                       $stmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+                       return $stmt->execute();
+                   }
+
+                   public function update_cart_qty($user_id, $product_id, $qty) {
+                       $qty = max(1, (int)$qty);
+                       $sql = "UPDATE cart SET p_qty = :qty WHERE user_id = :user_id AND product_id = :product_id";
+                       $stmt = $this->conn->prepare($sql);
+                       $stmt->bindParam(':qty', $qty, PDO::PARAM_INT);
+                       $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+                       $stmt->bindParam(':product_id', $product_id, PDO::PARAM_INT);
+                       return $stmt->execute();
+                   }
+
                    public function select_cart_to_header($user_id)
                     {
-                      $sql = "SELECT cart.user_id,cart.product_id,cart.p_qty , products.id,products.p_price,products.p_name,products.images from products inner join cart on cart.product_id=products.id inner join users where users.id='$user_id'";
-                      $stmt=$this->conn->prepare($sql);
+                      $sql = "SELECT c.user_id, c.product_id, c.p_qty, 
+                                     p.id, p.p_price, p.p_name, p.images 
+                              FROM cart c 
+                              INNER JOIN products p ON c.product_id = p.id 
+                              WHERE c.user_id = :user_id";
+                      $stmt = $this->conn->prepare($sql);
+                      $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
                       $stmt->execute();
                       $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                       return $result; 
@@ -795,8 +838,9 @@ class auth extends database{
 
                   public function checkOut_fetch($user_id)
                   {
-                    $sql = "SELECT users.* , cart.user_id,cart.product_id,cart.p_qty , products.id,products.p_price,products.p_name,products.images from products inner join cart on cart.product_id=products.id inner join users where users.id='$user_id'";
+                    $sql = "SELECT * FROM users WHERE id = :user_id";
                     $stmt=$this->conn->prepare($sql);
+                    $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
                     $stmt->execute();
                     $result = $stmt->fetch(PDO::FETCH_ASSOC);
                     return $result;
@@ -804,11 +848,7 @@ class auth extends database{
 
                   public function checkOut_product($user_id)
                   {
-                    $sql = "SELECT users.* , cart.user_id,cart.product_id,cart.p_qty , products.id,products.p_price,products.p_name,products.images from products inner join cart on cart.product_id=products.id inner join users where users.id='$user_id'";
-                    $stmt=$this->conn->prepare($sql);
-                    $stmt->execute();
-                    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                    return $result;
+                    return $this->select_cart_to_header($user_id);
                   } 
 
                   public function order_place($product_id,$user_id,$shipping_address,$total)
@@ -822,10 +862,10 @@ class auth extends database{
                     $result = $stmt->execute();
                     if($result)
                     {
-                      $sql2 = "DELETE FROM cart WHERE user_id= '$user_id'";
-                      $stmt=$this->conn->prepare($sql2);
-                      $stmt->bindParam(':user_id' ,$user_id ,PDO::PARAM_INT);
-                      $stmt->execute();
+                      $sql2 = "DELETE FROM cart WHERE user_id = :user_id";
+                      $stmt2=$this->conn->prepare($sql2);
+                      $stmt2->bindParam(':user_id' ,$user_id ,PDO::PARAM_INT);
+                      $stmt2->execute();
                        echo 'Your Product Has Been Placed';
                     }
                     else{
@@ -891,12 +931,25 @@ class auth extends database{
 
                   public function search_form($query)
                   {
-                    $sql = "SELECT * FROM products WHERE p_name LIKE '%$query%' or p_price LIKE '%query%'";
-                    $stmt =$this->conn->prepare($sql);
-                    $stmt->bindParam(':query',$query);
-				            $stmt->execute();
+                    $query = trim($query);
+                    if (empty($query)) return [];
+                    
+                    $sql = "SELECT p.*, c.cat_name 
+                            FROM products p 
+                            LEFT JOIN category c ON p.category_id = c.id 
+                            WHERE p.p_name LIKE :kw1 
+                               OR p.p_description LIKE :kw2 
+                               OR c.cat_name LIKE :kw3";
+                               
+                    $stmt = $this->conn->prepare($sql);
+                    $keyword = "%{$query}%";
+                    $stmt->bindParam(':kw1', $keyword, PDO::PARAM_STR);
+                    $stmt->bindParam(':kw2', $keyword, PDO::PARAM_STR);
+                    $stmt->bindParam(':kw3', $keyword, PDO::PARAM_STR);
+                    
+                    $stmt->execute();
                     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                    return $result ;
+                    return $result;
                   }
 
                   public function get_category_name($cat_id)

@@ -50,29 +50,26 @@ else {
 					<div class="col-md-5 col-md-push-2">
 						<div id="product-main-img">
 							<?php
-						    // foreach($row as $r){
 								$image = $row['images'];
 								$my_images = explode(",", $image);
-								// print_r($my_images);
-
-
+								
+								$has_valid_image = false;
+								for ($i = 0; $i < 5; $i++) {
+									if (!empty($my_images[$i]) && file_exists(__DIR__ . '/uploads/' . trim($my_images[$i]))) {
+										$has_valid_image = true;
 							?>
 							<div class="product-preview">
-								<img src="uploads/<?php echo $my_images[0];?>" alt="">
+								<img src="uploads/<?php echo htmlspecialchars(trim($my_images[$i]));?>" alt="">
 							</div>
+							<?php 
+									}
+								}
+								if (!$has_valid_image) {
+							?>
 							<div class="product-preview">
-								<img src="uploads/<?php echo $my_images[1];?>" alt="">
+								<img src="uploads/default.png" alt="">
 							</div>
-							<div class="product-preview">
-								<img src="uploads/<?php echo $my_images[2];?>" alt="">
-							</div>
-							<div class="product-preview">
-								<img src="uploads/<?php echo $my_images[3];?>" alt="">
-							</div>
-							<div class="product-preview">
-								<img src="uploads/<?php echo $my_images[4];?>" alt="">
-							</div>
-						
+							<?php } ?>
 						</div>
 					</div>
 					<!-- /Product main img -->
@@ -80,21 +77,24 @@ else {
 					<!-- Product thumb imgs -->
 					<div class="col-md-2  col-md-pull-5">
 						<div id="product-imgs">
+							<?php 
+								$has_valid_thumb = false;
+								for ($i = 0; $i < 5; $i++) {
+									if (!empty($my_images[$i]) && file_exists(__DIR__ . '/uploads/' . trim($my_images[$i]))) {
+										$has_valid_thumb = true;
+							?>
 							<div class="product-preview">
-							<img src="uploads/<?php echo $my_images[0];?>" alt="">
+								<img src="uploads/<?php echo htmlspecialchars(trim($my_images[$i]));?>" alt="">
 							</div>
-
+							<?php 
+									}
+								}
+								if (!$has_valid_thumb) {
+							?>
 							<div class="product-preview">
-							<img src="uploads/<?php echo $my_images[1];?>" alt="">
+								<img src="uploads/default.png" alt="">
 							</div>
-
-							<div class="product-preview">
-							<img src="uploads/<?php echo $my_images[2];?>" alt="">
-							</div>
-
-							<div class="product-preview">
-							<img src="uploads/<?php echo $my_images[3];?>" alt="">
-							</div>
+							<?php } ?>
 						</div>
 					</div>
 					<!-- /Product thumb imgs -->
@@ -116,11 +116,11 @@ else {
 										 }
 										else
 										  {
-                                            echo '';
+                                            echo '<i class="fa fa-star-o empty"></i>';
 										  }
 									}
 									?>
-								<a class="review-link" href="#">10 Review(s) | Add your review</a>
+								<a class="review-link" href="#tab3">10 Review(s) | Add your review</a>
 							</div>
 							<div>
 								<h3 class="product-price">Rs : <?php echo $row['p_price']?> <del class="product-old-price">Rs : <?php echo $row['p_discount']?></del></h3>
@@ -341,10 +341,10 @@ else {
 												</ul>
 												<ul class="reviews-pagination">
 													<li class="active">1</li>
-													<li><a href="#">2</a></li>
-													<li><a href="#">3</a></li>
-													<li><a href="#">4</a></li>
-													<li><a href="#"><i class="fa fa-angle-right"></i></a></li>
+													<li><a href="#tab3">2</a></li>
+													<li><a href="#tab3">3</a></li>
+													<li><a href="#tab3">4</a></li>
+													<li><a href="#tab3"><i class="fa fa-angle-right"></i></a></li>
 												</ul>
 											</div>
 										</div>
@@ -403,7 +403,7 @@ else {
 				<!-- section title -->
 				<div class="col-md-12">
 						<div class="section-title">
-							<h3 class="title">Recomended Products</h3>
+							<h3 class="title">Related Products</h3>
 						</div>
 					</div>
 					<!-- /section title -->
@@ -415,55 +415,64 @@ else {
 							<!-- product -->
 
 							<?php
-							$result11=$cuser->recomended_products();
+							$current_cat_id = isset($row['category_id']) ? $row['category_id'] : 0;
+							$current_p_id = isset($_GET['p_id']) ? $_GET['p_id'] : 0;
+							$result11 = $cuser->related_products($current_cat_id, $current_p_id);
 							
-									 foreach($result11 as $row)
-									 {
-                                       $images = $row['images'];  
-									   $new_images = explode(",", $images);
-                                    							
-									?>
+							if(empty($result11)) {
+								echo '<p class="text-center">No related products found.</p>';
+							}
+							
+							foreach($result11 as $rel_row) {
+								$images = $rel_row['images'];  
+								$product_image = get_product_image($images);
+								$p_price = floatval($rel_row['p_price']);
+								$p_discount = floatval($rel_row['p_discount']);
+								$percent = 0;
+								if ($p_discount > 0 && $p_discount > $p_price) {
+									$percent = (($p_discount - $p_price) * 100) / $p_discount;
+								}
+							?>
 							<div class="col-md-3 col-xs-6">
-							<a href="product.php?p_id=<?php echo $row['product_id']?>">	
+							<a href="product.php?p_id=<?php echo $rel_row['product_id']?>">	
 							<div class="product">
 									<div class="product-img">
-										<img width="100px" height="280px" src="./uploads/<?php echo $new_images[0]?>" alt="">
+										<img width="100px" height="280px" src="./uploads/<?php echo htmlspecialchars($product_image); ?>" alt="">
 										<div class="product-label">
-											<?php $percent = ( ($row['p_discount'] - $row['p_price'] ) * 100) / $row['p_discount'];?>
+											<?php if ($percent > 0): ?>
 											<span class="sale"><?php echo ceil($percent);?>%</span>
+											<?php endif; ?>
 										</div>
 									</div>
 									<div class="product-body">
-										<h3 class="product-name"><a href="product.php?p_id=<?php echo $row['product_id']?>"><?php echo $row['p_name']?></a></h3>
-										<h4 class="product-price">Rs : <?php echo $row['p_price']?> <del class="product-old-price">Rs : <?php echo $row['p_discount']?></del></h4>
+										<h3 class="product-name"><a href="product.php?p_id=<?php echo $rel_row['product_id']?>"><?php echo htmlspecialchars($rel_row['p_name'])?></a></h3>
+										<h4 class="product-price">Rs : <?php echo htmlspecialchars($rel_row['p_price'])?> 
+										<?php if ($p_discount > 0 && $p_discount > $p_price): ?>
+										<del class="product-old-price">Rs : <?php echo htmlspecialchars($rel_row['p_discount'])?></del>
+										<?php endif; ?>
+										</h4>
 									<?php
-									$p_id = $row['product_id'];
+									$p_id = $rel_row['product_id'];
 									$result3 = $product->total_reviews($p_id);
 									$avgRec = (float)($result3['avg'] ?? 0);
 									$result4 = (int)round($avgRec);
 									for ($i=1; $i < 6; $i++) { 
-										if($result4 >= $i)
-										 {
+										if($result4 >= $i) {
 											echo '<span value="'.$i.'"></span><i style="color:red;" class="fa fa-star checked"></i>';
-										 }
-										else
-										  {
-                                            echo '';
-										  }
+										} else {
+											echo '<i class="fa fa-star checked"></i>';
+										}
 									}
 									?>
 										<div class="product-btns">
-											<a href="product.php?p_id=<?php echo $row['product_id']?>" class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp"></span></a>
+											<a href="product.php?p_id=<?php echo $rel_row['product_id']?>" class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp"></span></a>
 										</div>
 									</div>
-									<!-- <div class="add-to-cart">
-										<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
-									</div> -->
 								</div>
 							</div>
 							</a>
 							<?php
-							 }
+							}
 							?>
 							<!-- /product -->
 

@@ -1,0 +1,1 @@
+<?php require 'admin/include/auth.php'; $a = new auth(); $cats = ['Laptop', 'Accessories', 'Cameras']; foreach($cats as $c) { $stmt = $a->conn->prepare('SELECT id FROM category WHERE cat_name = ?'); $stmt->execute([$c]); if(!$stmt->fetch()) { $a->insert_cat($c); } } print_r($a->select_cat());

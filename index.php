@@ -27,7 +27,7 @@
 							</div>
 							<div class="shop-body">
 								<h3>Laptop<br>Collection</h3>
-								<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
+								<a href="store.php?cat_id=57" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
 							</div>
 						</div>
 					</div>
@@ -41,7 +41,7 @@
 							</div>
 							<div class="shop-body">
 								<h3>Accessories<br>Collection</h3>
-								<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
+								<a href="store.php?cat_id=58" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
 							</div>
 						</div>
 					</div>
@@ -55,7 +55,7 @@
 							</div>
 							<div class="shop-body">
 								<h3>Cameras<br>Collection</h3>
-								<a href="#" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
+								<a href="store.php?cat_id=59" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
 							</div>
 						</div>
 					</div>
@@ -92,17 +92,7 @@
 								foreach($result as $row)
 								{
 									$images = $row['images'];  
-									$new_images = explode(",", $images);
-
-									// Fix: Check if at least one image exists, fallback to first if not
-									$product_image = '';
-									if (isset($new_images[1]) && !empty($new_images[1])) {
-										$product_image = $new_images[1];
-									} elseif (isset($new_images[0]) && !empty($new_images[0])) {
-										$product_image = $new_images[0];
-									} else {
-										$product_image = 'default.png'; // fallback image
-									}
+									$product_image = get_product_image($images);
 							?>
 							<div class="col-md-3 col-xs-6 product-item" <?php if($count >= 16) echo 'style="display:none;"'; ?>>
 								<a href="product.php?p_id=<?php echo $row['id']?>">	
@@ -240,14 +230,14 @@
 							$count = 0;
 							foreach($result11 as $row) {
 								$images = $row['images'];  
-								$new_images = explode(",", $images);
+								$product_image = get_product_image($images);
 								$hidden_class = ($count >= $max_initial) ? ' style="display:none;"' : '';
 							?>
 							<div class="col-md-3 col-xs-6 top-selling-product-item"<?php echo $hidden_class; ?>>
 								<a href="product.php?p_id=<?php echo $row['product_id']?>">	
 								<div class="product">
 									<div class="product-img">
-										<img width="100px" height="280px" src="./uploads/<?php echo $new_images[0]?>" alt="">
+										<img width="100px" height="280px" src="./uploads/<?php echo htmlspecialchars($product_image); ?>" alt="">
 										<div class="product-label">
 											<?php $percent = ( ($row['p_discount'] - $row['p_price'] ) * 100) / $row['p_discount'];?>
 											<span class="sale"><?php echo ceil($percent);?>%</span>

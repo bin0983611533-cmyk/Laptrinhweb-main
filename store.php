@@ -132,9 +132,17 @@
 								$product_list = isset($result) && is_array($result) ? $result : [];
 							}
 							
+							if (count($product_list) == 0):
+							?>
+							<div class="col-md-12 text-center" style="padding: 50px 0;">
+								<h3>No products found</h3>
+								<p>Try another keyword.</p>
+							</div>
+							<?php
+							else:
 							foreach ($product_list as $row):
 								$images = $row['images'];
-								$new_images = explode(",", $images);
+								$product_image = get_product_image($images);
 								$p_price = floatval($row['p_price']);
 								$p_discount = floatval($row['p_discount']);
 								// Safe discount percent calculation
@@ -147,7 +155,7 @@
 								<a href="product.php?p_id=<?php echo $row['id']?>">	
 									<div class="product">
 										<div class="product-img">
-											<img width="100px" height="280px" src="./uploads/<?php echo htmlspecialchars($new_images[0]); ?>" alt="<?php echo htmlspecialchars($row['p_name'] ?? ''); ?>">
+											<img width="100px" height="280px" src="./uploads/<?php echo htmlspecialchars($product_image); ?>" alt="<?php echo htmlspecialchars($row['p_name'] ?? ''); ?>">
 											<div class="product-label">
 												<?php if ($percent > 0): ?>
 													<span class="sale"><?php echo ceil($percent); ?>%</span>
@@ -156,7 +164,7 @@
 											</div>
 										</div>
 										<div class="product-body">
-											<p class="product-category"></p>
+											<p class="product-category">
 												<?php echo !empty($row['cat_name']) ? htmlspecialchars($row['cat_name']) : 'Category'; ?>
 											</p>
 											<h3 class="product-name">
@@ -191,7 +199,7 @@
 									</div>
 								</a>
 							</div>
-							<?php endforeach; ?>
+							<?php endforeach; endif; ?>
 							<!-- /product -->
 						</div>
 						<!-- /store products -->
